@@ -1,3 +1,6 @@
 # C
 *.o
 *.obj
+
+# Miscellaneous
+/tools
