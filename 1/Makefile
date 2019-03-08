@@ -1,7 +1,7 @@
 bin = kernel.img
 elf = kernel.elf
 obj = kernel.o
-code = turn_led_on.s #sysTimer.s
+code = blink_led.s
 
 PLATFORM ?= linux
 ABI ?= gnueabihf
