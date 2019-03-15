@@ -7,7 +7,9 @@ if [ -z "$SSH_KEY_E" ]; then
   exit 1
 fi
 
-base64 -d <<< "$SSH_KEY_E" | gunzip -c > ~/.ssh/id_rsa
+echo "$SSH_KEY_E" |
+  base64 -d |
+  gunzip -c > ~/.ssh/id_rsa
 
 git remote add mirror git@github.com:iBug/OSH-2019-Labs.git
 git push mirror +master
