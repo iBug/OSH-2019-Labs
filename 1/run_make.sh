@@ -1,2 +1,2 @@
 #!/bin/bash
-PATH=$(dirname "$0")/../tools/bin:$PATH make "$@"
+PATH=$(dirname "$0")/../tools/bin:$PATH exec make "$@"
