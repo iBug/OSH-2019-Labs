@@ -11,6 +11,8 @@ echo "$SSH_KEY_E" |
   base64 -d |
   gunzip -c > ~/.ssh/m.id_rsa
 
+set -x
+
 cat >> ~/.ssh/config << EOF
 Host GHMirror
   HostName github.com
