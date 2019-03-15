@@ -16,10 +16,10 @@ _start:
 ldr r0, =BASE
 
 @ Enable GPIO 29 for output (On-board green LED)
-mov r1, #BIT27
+ldr r1, =BIT27
 str r1, [r0, #GPFSEL2]
 
-mov r1, #BIT29
+ldr r1, =BIT29
 
 @ Load System Timer
 ldr r2, =TIMER_BASE
