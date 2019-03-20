@@ -88,11 +88,9 @@ The last step is to boot the kernel. Put the generated `kernel.img` onto the mic
 
 Now we want the LED to blink. The first thing you should think of is whether there's some kind of a timer on the Raspberry Pi, and indeed there is.
 
-Read the BCM2837 documentation and find out the details of the system timer. Its starting address should be documented as `0x7E003000`. Again this is wrong, and the same page that has given the correct address for the GPIO controller says the system timer is at `0x3F003000`. Again, use this value.
+Read the BCM2837 documentation and find out the details of the system timer. Its starting address should be documented as `0x7E003000`. Again this is wrong, and the same page that has given the correct address for the GPIO controller says the system timer is at `0x3F003000`. Use this value.
 
-The system timer runs at 1 MHz, which means just by taking bit 19, you get a single bit that swaps every 524.288 ms, providing a cycle of roughly 1 second. We'll use this as the timer for the LED.
-
-By using a conditional branch to determine whether to write to `GPSETn` or `GPCLRn`, blinking effect can be easily achieved. Here's the full code:
+To make the LED blink at 0.5 Hz (1s on, 1s off), use another register to hold the "target time" and poll the clock before actually flipping the LED. Here's the complete code.
 
 ```assembly
 .section .init
@@ -108,36 +106,45 @@ By using a conditional branch to determine whether to write to `GPSETn` or `GPCL
 
 .equ BIT27, 0x08000000
 .equ BIT29, 0x20000000
+.equ SECOND, 1000000
 
 _start:
 ldr r0, =BASE
 
 @ Enable GPIO 29 for output (On-board green LED)
-mov r1, #BIT27
+ldr r1, =BIT27
 str r1, [r0, #GPFSEL2]
 
-mov r1, #BIT29
+ldr r1, =BIT29
 
 @ Load System Timer
 ldr r2, =TIMER_BASE
-mov r4, #0
+ldr r4, =0
+ldr r5, [r2, #GPCLO]
+ldr r6, =SECOND
 
 loopstart:
+
+add r5, r5, r6
+wait1: @ Poll the clock until enough time has passed
 ldr r3, [r2, #GPCLO]
+cmp r3, r5
+ble wait1
 
-and r3, r3, #0x00080000
-cmp r3, #0
-bne led_off
-
-led_on:
+@ Enable the LED
 str r1, [r0, #GPSET0]
 str r4, [r0, #GPSET0]
-b loopstart
 
-led_off:
+add r5, r5, r6
+wait2: @ Poll the clock again
+ldr r3, [r2, #GPCLO]
+cmp r3, r5
+ble wait2
+
+@ Clear the LED
 str r1, [r0, #GPCLR0]
 str r4, [r0, #GPCLR0]
 b loopstart
 ```
 
-Compile this assembly code into `kernel.img` in the same way above, and copy the kernel to the microSD card to see the effect. The green LED on the Raspberry Pi 3 B+ should be blinking at a frequency of roughly 1 Hz.
+Compile this assembly code into `kernel.img` in the same way above, and copy the kernel to the microSD card to see the effect. The green LED on the Raspberry Pi 3 B+ should be blinking at a frequency of roughly 0.5 Hz.
