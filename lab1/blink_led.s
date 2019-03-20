@@ -11,6 +11,7 @@
 
 .equ BIT27, 0x08000000
 .equ BIT29, 0x20000000
+.equ SECOND, 1000000
 
 _start:
 ldr r0, =BASE
@@ -24,20 +25,26 @@ ldr r1, =BIT29
 @ Load System Timer
 ldr r2, =TIMER_BASE
 ldr r4, =0
+ldr r5, [r2, #GPCLO]
+ldr r6, =SECOND
 
 loopstart:
+
+add r5, r5, r6
+wait1:
 ldr r3, [r2, #GPCLO]
+cmp r3, r5
+ble wait1
 
-and r3, r3, #0x00080000
-cmp r3, #0
-bne led_off
-
-led_on:
 str r1, [r0, #GPSET0]
 str r4, [r0, #GPSET0]
-b loopstart
 
-led_off:
+add r5, r5, r6
+wait2:
+ldr r3, [r2, #GPCLO]
+cmp r3, r5
+ble wait2
+
 str r1, [r0, #GPCLR0]
 str r4, [r0, #GPCLR0]
 b loopstart
