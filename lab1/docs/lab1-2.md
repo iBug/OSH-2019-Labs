@@ -30,6 +30,12 @@ Setting up the toolchain for cross-compiling for Raspberry Pi 3 B+ isn't quite h
 git clone https://github.com/raspberrypi/tools.git tools --depth=1 --branch=master
 ```
 
+Or if GitHub is too slow for you and you want to reduce download size:
+
+```shell
+svn checkout https://github.com/raspberrypi/tools/trunk/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf tools
+```
+
 Browse `tools/` and you'll be surprised how many there are. Ignore the rest and take what we need here: `tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/`. Copy this toolset to somewhere convenient, for example `~/rpitools`, and add it to `$PATH` for later use:
 
 ```shell
@@ -42,5 +48,10 @@ Following the lab guide, compiling the Linux kernel is straightforward:
 
 ```shell
 export ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf
-make bcm2708-defconfig
+make bcm2709_defconfig
+make -j8 zImage
 ```
+
+The first line exports information about cross-compilation which `make` will respect. This saves some command-line typing. The second line creates the default config for Raspberry Pi (Broadcom BCM2709 equivalent) and the last line builds the kernel with the default config, with a maximum of 8 concurrent jobs.
+
+On my machine, the compilation took 12 minutes, before I could grab the output file `arch/arm/boot/zImage` and place it in the root of the SD card with the name `kernel7.img`. Then power up the Raspberry Pi.
