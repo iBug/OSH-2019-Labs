@@ -8,12 +8,18 @@ According to [How does Raspberry Pi boot?][1], the booting process of Raspberry 
 
 1. When the Pi is first powered up, the ARM cores are off, and the VideoCore IV GPU core loads the ROM embedded in the chip. The ROM is the first-stage bootloader.
 2. The GPU ROM reads the microSD card and locates the boot partition, which is a FAT32 or FAT16 volume<sup>\[2\]</sup>, then finds the second-stage bootloader file `bootcode.bin` and loads it into the L2 cache of the SoC, and executes it.
-3. `bootcode.bin` loads the third-stage bootloader `start.elf`.
+3. `bootcode.bin` loads the third-stage bootloader `start.elf`. This is still some GPU program, as can be seen from the output of `file(1)`.
+
+  ```
+  $ file start.elf
+  start.elf: ELF 32-bit LSB executable, Broadcom VideoCore III, version 1 (SYSV), statically linked, stripped
+  ```
+
 4. `start.elf` parses `config.txt` and initialize core hardware, including enabling the ARM CPU cores and allocating memory between the CPU and the GPU, before parsing `cmdline.txt` and loading the Linux kernel `kernel.img`, which then loads everything else, such as `init` and `systemd`.
 
-## 2. The similarity and difference between the boot process of Raspberry Pi and a Intel x86-based PC
+## 2. The similarity and difference between the boot processes of Raspberry Pi and a Intel x86-based PC
 
-First, because the Raspberry Pi uses a System-on-Chip (SoC), it is more integrated than a x86-based PC. For example its CPU, GPU and first-stage bootloader is grained on one silicon chip. On the contrary, the first-stage bootloader equivalent of a x86 PC, the basic input/output system (BIOS), is stored on another chip than the CPU, usually an EEPROM, which makes it modifiable (you surely have seen the term "BIOS upgrade", which is exactly when the BIOS is modified).
+First, because the Raspberry Pi uses a System-on-Chip (SoC), it is more integrated than a x86-based PC. For example its CPU, GPU and first-stage bootloader is packed into one single silicon chip. On the contrary, the first-stage bootloader equivalent of a x86 PC, the basic input/output system (BIOS), is stored on another chip than the CPU, usually an EEPROM, which makes it modifiable (you surely have seen the term "BIOS upgrade", which is exactly when the BIOS is modified).
 
 From here, the boot process of a typical PC starts to divert, where there are two major streamlines of methods, BIOS and UEFI. Despite, they're fundamentally identical, as both loads the initial bit of code from a piece of special designated hardware (a ROM), which initializes hardware before loading further boot code from hard drive.
 
@@ -21,7 +27,7 @@ If I must say, I'd say that the boot process of the Raspberry Pi is more akin to
 
 ## 3. What filesystems are accessed during the boot process of the Raspberry Pi
 
-According to BeyondLogic<sup>\[2\]</sup>, the boot partition has a filesystem of FAT32 or FAT16. Then depending on the kernel and the operating system, addition filesystems are accessed, for example ext4 (Raspbian) or NTFS (Windows 10 on ARM).
+According to BeyondLogic<sup>\[2\]</sup>, the boot partition has a filesystem of FAT32 or FAT16. Then depending on the kernel and the operating system, addition filesystems are accessed, for example ext3/4 (Raspbian) or NTFS (Windows 10 on ARM).
 
 ## References:
 

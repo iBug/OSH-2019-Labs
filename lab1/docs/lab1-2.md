@@ -55,3 +55,32 @@ make -j8 zImage
 The first line exports information about cross-compilation which `make` will respect. This saves some command-line typing. The second line creates the default config for Raspberry Pi (Broadcom BCM2709 equivalent) and the last line builds the kernel with the default config, with a maximum of 8 concurrent jobs.
 
 On my machine, the compilation took 12 minutes, before I could grab the output file `arch/arm/boot/zImage` and place it in the root of the SD card with the name `kernel7.img`. Then power up the Raspberry Pi.
+
+## Answers to questions
+
+1. In addition to `kernel7.img`, the following 4 files are necessary for a minimal Linux system to boot up:
+
+  - `botocode.bin`
+  - `start.elf`
+  - `config.txt`
+  - `cmdline.txt`
+
+  Their functionalities are described in the report of Lab 1-1.
+
+2. An FAT32 filesystem is used. As described in the report of Lab 1-1, it's possible to use an FAT16 volume for this.
+
+3. The volume of the root mountpoint (`/`) is specified as a kernel parameter in `cmdline.txt`:
+
+  ```text
+  dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=PARTUUID=7ee80803-02 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait quiet init=/init
+  ```
+
+  The 4th option, `root`, specifies a volume for the root mountpoint, which reads `7ee80803-02`, indicating the 2nd partition on a hard drive with ID `7ee80803`, which resolves to `/dev/sdc2`. The init program is also specified in the kernel parameter, which is the last one in the file: `init=/init`. This means the init program is located at path `/init`, so the kernel will load and execute it, with its PID being 1.
+
+4. What kernel features must be enabled for `init` to execute? This appears rather obvious, but giving a precise answer isn't as easy as it seems. At a bare minimum, kernel support for block layer (MBR partition schema), ext4 filesystem, ELF binaries, LED triggers, GPIO triggers, GPU support and video output via HDMI, tty must be enabled. Some other features required by the kernel, such as at least one floating-point emulation mode, must also be enabled as well.
+
+  By backing up and retrying, I managed to compile a kernel that's only 908 KiB in size.
+
+5. Because the `init` program is run with PID 1 and is supposed to run forever.
+
+  Reading from line 579 of `kernel/exit.c`, the kernel will panic upon `init` exiting.
