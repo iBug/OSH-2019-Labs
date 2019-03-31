@@ -148,3 +148,24 @@ b loopstart
 ```
 
 Compile this assembly code into `kernel.img` in the same way above, and copy the kernel to the microSD card to see the effect. The green LED on the Raspberry Pi 3 B+ should be blinking at a frequency of roughly 0.5 Hz.
+
+## Answers to questions
+
+1. Similar to that of Lab 1-2, three files are important: `bootcode.bin`, `start.elf` and `config.txt`. Here `cmdline.txt` is redundant because *our* kernel doesn't need it.
+
+2. `/dev/sdc2` is useless. As of the original version of this report, the partition is manually created instead of flashing a pre-made `lab1.img` file. There was only one partition at that time.
+
+3. The functions of the three tools are as follows:
+
+  1. `as` is the assembler that translates assembly code (text) to object code (binary). We usually don't manually call `as` as it's done by the compiler as the 3rd step, for example `gcc -c -o hello.o hello.s`.
+
+  2. `ld` is the static linker that links raw binarys with dynamic libraries (shared objects). Same as `as`, this is usually called by the compiler. For example, the following two commands are equivalent:
+
+  ```shell
+  gcc -o hello hello.o main.o -lm
+  ld -lc -lm hello hello.o main.o
+  ```
+
+  3. `objcopy` copies and translates an object file in some format into another format. Because the second output file `kernel.elf` is in ELF format rather than raw binary, it is not runnable as a kernel. We use `objcopy` to translate this ELF to raw binary so it can be executed on bare metal.
+
+  This is not a tool that we'd use in everyday development.
