@@ -1,6 +1,10 @@
 *.o
 sh
+
 # Autotools
+.deps
+Makefile
+config.h
 
 # http://www.gnu.org/software/automake
 Makefile.in
