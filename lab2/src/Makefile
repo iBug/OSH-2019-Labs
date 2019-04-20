@@ -1,6 +1,6 @@
 CC := gcc
 CFLAGS := -O2 $(CFLAGS)
-DEFINES := -D_POSIX_C_SOURCE=200809L
+DEFINES += -D_POSIX_C_SOURCE=200809L
 
 # Uncomment the following lines for GNU readline support
 DEFINES += -DHAVE_READLINE
