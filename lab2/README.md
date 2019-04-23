@@ -2,7 +2,9 @@
 
 All source codes are in `src/` directory. A `Makefile` is provided so the whole program can be easily compiled with `make`.
 
-There are two optional features enabled by default: Colored prompt (similar to `$PS1` and GNU readline utilization. To disable them, edit `src/Makefile`.
+There are two optional features enabled by default: Colored prompt (similar to `$PS1`) and GNU readline utilization. To disable them, edit `src/Makefile`.
+
+You can verify the functionality of ish by invoking `make test` and comparing the output against `bash test.sh`. They should be the same.
 
 ## The following features are implemented
 
@@ -23,6 +25,7 @@ Optional:
 - Basic (direct) variable expansion (`echo $USER:${HOME}MMM:$INVALID:` outputs `ubuntu:/home/ubuntuMMM::`)
 - Backslash escape sequence (*some* of them: `echo \e[31;1m\a\\\x42\e[0m` will output `\a\B` in red - check the source code for details)
 - Quoting with single or double quotes (`echo ~.abc"~.def$HOME\""\ '"$HOME"'` will output `/home/ubuntu.abc~.def/home/ubuntu" "$HOME"`)
+- Extended redirection, namely `<<` and `<<<` heredocs. Escape sequence and variable expansion are supported for both redirections.
 - GNU readline support
   - Tab completion for filenames, understands `~` for home path
   - Command histories, though they don't preserve across sessions
