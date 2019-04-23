@@ -3,6 +3,8 @@
 
 #include "parsing.h"
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "variables.h"
 
@@ -80,12 +82,18 @@ int expand_token(char* out, const char* s, size_t maxlen) {
     if (*s == '\\') {
         return escape_char(out, s + 1) + 1;
     } else if (*s == '$') {
-        char varname[MAX_VAR_NAME] = {};
+        char varname[MAX_VAR_NAME] = {}, ops[256] = {};
         const char *varvalue, *s_orig = s;
-        int j = 0, brace = 0;
+        int varlen, j = 0;
+        unsigned char brace = 0, get_len = 0;
         if (s[1] == '{') {
             brace = 1;
-            s += 2;
+            if (s[2] == '#') {
+                get_len = 1;
+                s += 3;
+            } else {
+                s += 2;
+            }
         } else {
             s++;
         }
@@ -96,17 +104,52 @@ int expand_token(char* out, const char* s, size_t maxlen) {
                 *s == '_') {
                     varname[j] = *s;
             } else if (brace) {
-                if (*s == '}') {
-                    s++;
-                    break;
+                for (int i = 0; i < 256; i++, s++) {
+                    if (*s == '}') {
+                        s++;
+                        break;
+                    } else {
+                        ops[i] = *s;
+                    }
                 }
+                break;
             } else break;
         }
         varvalue = get_variable(varname);
-        if (varvalue) {
-            strncpy(out, varvalue, maxlen - 1);
-        } else {
-            *out = 0;
+        varlen = varvalue ? strlen(varvalue) : 0;
+
+        if (get_len) {
+            sprintf(out, "%d", varlen);
+        } else if (varvalue) {
+            if (!ops[0]) { // No operations
+                strncpy(out, varvalue, maxlen - 1);
+            } else { // get operations going
+                if (ops[0] == ':') {
+                    int i = 1, start = 0, len;
+                    start = atoi(ops + i);
+                    for (i++; ops[i] >= '0' && ops[i] <= '9'; i++);
+                    if (ops[i] == ':') {
+                        len = atoi(ops + i + 1);
+                        if (len < 0)
+                            len = varlen - len;
+                    } else {
+                        len = varlen - start;
+                    }
+                    strncpy(out, varvalue + start, maxlen - 1);
+                    if (len > maxlen - 1)
+                        len = maxlen - 1; // Prevent overflow
+                    out[len] = 0;
+                }
+            }
+        } else { // Variable not present
+            if (!ops[0]) {
+                *out = 0; // Set it to empty string
+            } else {
+                if (ops[0] == '=') {
+                    set_variable(varname, ops + 1, 0);
+                    strncpy(out, ops + 1, maxlen - 1);
+                }
+            }
         }
         return s - s_orig;
     } else { // Nothing to expand

@@ -45,6 +45,15 @@ env | grep 'A='
 export A=3
 env | grep 'A='
 
+# Extended expansion
+A=ABCDEFGHIJKLMNOPQRSTUVWXYZ
+echo ${A:3:8}
+echo ${A:22}
+echo ${#A}
+echo ${PWD} ${#PWD}
+echo ${B=bbb}
+echo ${B=ccc}
+
 # Extended redirection
 cat <<< "Oh, haha, right?"
 cat <<< "Home: $HOME"
