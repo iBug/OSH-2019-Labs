@@ -13,6 +13,8 @@ Mandatory:
 - Built-in commands `cd` and `pwd`
 - Command piping with pipe(2) and dup2(2) (and pipe chaining)
 - Basic redirections `<`, `>` and `>>`
+  - Built-in commands support both piping and redirection
+    - With piping, it still `fork`s for built-in commands. With only redirection, it doesn't
 - Setting environment variables with the syntax `export VAR=VALUE` (implemented as a built-in command)
 
 Optional:
