@@ -28,7 +28,7 @@ Optional:
 - Quoting with single or double quotes (`echo ~.abc"~.def$HOME\""\ '"$HOME"'` will output `/home/ubuntu.abc~.def/home/ubuntu" "$HOME"`)
 - Extended redirection, namely `<<` and `<<<` heredocs
   - Escape sequence and variable expansion are supported for both types of redirections
-  - Built-in commands are executed in the current shell if there's no pipe, even with redirections
+  - Special note on **POSIX compliance**: Built-in commands are executed in the current shell if there's no pipe, even with redirections
 
     That means `exit > /dev/null` will still exit the shell, while `exit | cat` won't. This is consistent with observable behavior from other known shells like dash, ksh or bash.
 - Extended variable substitution (GNU Bash)
