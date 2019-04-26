@@ -28,6 +28,9 @@ Optional:
 - Quoting with single or double quotes (`echo ~.abc"~.def$HOME\""\ '"$HOME"'` will output `/home/ubuntu.abc~.def/home/ubuntu" "$HOME"`)
 - Extended redirection, namely `<<` and `<<<` heredocs
   - Escape sequence and variable expansion are supported for both types of redirections
+  - Built-in commands are executed in the current shell if there's no pipe, even with redirections
+
+    That means `exit > /dev/null` will still exit the shell, while `exit | cat` won't. This is consistent with observable behavior from other known shells like dash, ksh or bash.
 - Extended variable substitution (GNU Bash)
   - `${PWD:2:4}` gives `ome/` (if your PWD is `/home/ubuntu`)
   - `${PWD:2}` gives `ome/ubuntu`
@@ -38,3 +41,19 @@ Optional:
   - Tab completion for filenames, understands `~` for home path
   - Command histories, though they don't preserve across sessions
   - More GNU readline features (`~/.inputrc` will be respected)
+
+### Limitations on this implementation
+
+A minimal amount of dynamic memory arrangement is employed in this project, so a lot of things can't go infinitely, when on a standard shell it should, provided there's enough system memory.
+
+All these limitations are hard-coded and is only changeable by editing the code.
+
+- There's a length limit on each input line
+- There's a length limit on the name of non-environment variables
+- There's a length limit on the value of non-environment variables
+- There's a length limit on the full path to the current working directory (or it will display truncated)
+
+## The following features are not implemented, or implemented in a way that may not be compliant to the POSIX standard
+
+- Variable expansion for everything else not listed above, including but not limited to positional arguments `$1`, `$2`, etc. and special variables `$$`, `$#`, `$_`, etc.
+- File descriptor redirection like `2>&1` or `1>&-`
