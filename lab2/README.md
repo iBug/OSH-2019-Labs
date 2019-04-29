@@ -31,7 +31,8 @@ Optional:
   - Special note on **POSIX compliance**: Built-in commands are executed in the current shell if there's no pipe, even with redirections
 
     That means `exit > /dev/null` will still exit the shell, while `exit | cat` won't. This is consistent with observable behavior from other known shells like dash, ksh or bash.
-- Extended variable substitution (GNU Bash)
+- Special variable `$?`
+- Extended variable substitution (GNU Bash) (Does not support special variables like Bash does)
   - `${PWD:2:4}` gives `ome/` (if your PWD is `/home/ubuntu`)
   - `${PWD:2}` gives `ome/ubuntu`
   - `${#PWD}` gives `12`
