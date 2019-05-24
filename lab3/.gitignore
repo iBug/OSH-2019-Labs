@@ -1,0 +1,9 @@
+# Objects
+server
+*.o
+
+# Swap files
+*~
+
+# Test data
+/html
